@@ -9,6 +9,9 @@ import (
 type repository interface {
 	Get(ctx context.Context, params *model.GetUsersParams) ([]*model.User, error)
 	GetByID(ctx context.Context, id string) (*model.User, error)
+	Create(ctx context.Context, user *model.CreateUserParams) (string, error)
+	Update(ctx context.Context, id string, user *model.UpdateUserParams) (*model.User, error)
+	Delete(ctx context.Context, id string) error
 }
 
 type UserService struct {
@@ -27,4 +30,16 @@ func (s *UserService) Get(ctx context.Context, params *model.GetUsersParams) ([]
 
 func (s *UserService) GetByID(ctx context.Context, id string) (*model.User, error) {
 	return s.repo.GetByID(ctx, id)
+}
+
+func (s *UserService) Create(ctx context.Context, params *model.CreateUserParams) (string, error) {
+	return s.repo.Create(ctx, params)
+}
+
+func (s *UserService) Update(ctx context.Context, id string, params *model.UpdateUserParams) (*model.User, error) {
+	return s.repo.Update(ctx, id, params)
+}
+
+func (s *UserService) Delete(ctx context.Context, id string) error {
+	return s.repo.Delete(ctx, id)
 }
