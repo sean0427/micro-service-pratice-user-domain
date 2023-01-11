@@ -23,8 +23,7 @@ COPY --from=build /docker-exec $APP_HOME/docker-exec
 RUN chown -R $APP_USER:$APP_USER $APP_HOME
 RUN chmod -R 100 $APP_HOME
 EXPOSE 8080
-USER $APP_USE
+USER $APP_USER
 
-EXPOSE 8080
 
-CMD [ "/docker-exec" ]
+CMD [ "./docker-exec" ]
