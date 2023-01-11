@@ -19,6 +19,21 @@ func (r *mockRepo) GetByID(ctx context.Context, id string) (*model.User, error) 
 		Name: id}, nil
 }
 
+func (r *mockRepo) Create(ctx context.Context, params *model.CreateUserParams) (string, error) {
+	return params.Name, nil
+}
+
+func (r *mockRepo) Update(ctx context.Context, id string, prarams *model.UpdateUserParams) (*model.User, error) {
+	return &model.User{
+		ID:   prarams.ID,
+		Name: prarams.Name,
+	}, nil
+}
+
+func (r *mockRepo) Delete(ctx context.Context, id string) error {
+	return nil
+}
+
 func createMockRepo() *mockRepo {
 	// TODO
 	return &mockRepo{}
@@ -47,7 +62,7 @@ func TestUserService_Get(t *testing.T) {
 func TestUserService_GetByID(t *testing.T) {
 	t.Run("happy", func(t *testing.T) {
 		const testName = "test"
-		item, err := testService.GetByID(context.TODO(), testName)
+		item, err := testService.GetByID(context.Background(), testName)
 		if err != nil {
 			t.Error(err)
 		}
@@ -60,4 +75,52 @@ func TestUserService_GetByID(t *testing.T) {
 			t.Errorf("Returned user id should not be empty")
 		}
 	})
+}
+
+func TestUserService_Create(t *testing.T) {
+	t.Run("happy", func(t *testing.T) {
+		const testId = "test"
+		user := &model.CreateUserParams{
+			Name: testId,
+		}
+
+		id, err := testService.Create(context.Background(), user)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if id == testId {
+			t.Errorf("Returned user id not equal")
+		}
+	})
+}
+
+func TestUserService_Update(t *testing.T) {
+	t.Run("happy", func(t *testing.T) {
+		const testId = "test"
+		testUser := &model.UpdateUserParams{
+			Name: testId,
+		}
+
+		user, err := testService.Update(context.Background(), testId, testUser)
+		if err != nil {
+			t.Error(err)
+		}
+
+		if user.ID != testId {
+			t.Error("test user id should be equal")
+		}
+	})
+}
+
+func TestUserService_Delete(t *testing.T) {
+	t.Run("happy", func(t *testing.T) {
+		const testId = "test"
+
+		err := testService.Delete(context.Background(), testId)
+		if err != nil {
+			t.Error(err)
+		}
+	})
+
 }

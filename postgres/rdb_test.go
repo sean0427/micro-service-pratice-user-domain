@@ -22,7 +22,6 @@ func TestMain(m *testing.M) {
 	}
 
 	testingDB = db
-	testingDB.AutoMigrate(&model.Manufacturer{})
 	testingDB.AutoMigrate(&model.User{})
 
 	m.Run()
@@ -145,7 +144,6 @@ var testGetUserIdCases = []struct {
 
 func Test_repository_GetByID(t *testing.T) {
 	for _, c := range testGetUserIdCases {
-
 		t.Run(c.name, func(t *testing.T) {
 			createRandomUserToDB(c.testCount)
 			repo := repository{db: testingDB}
@@ -162,5 +160,74 @@ func Test_repository_GetByID(t *testing.T) {
 			}
 		})
 	}
+}
 
+func Test_repository_Create(t *testing.T) {
+	tests := []struct {
+		name    string
+		params  *model.CreateUserParams
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "happy",
+			params: &model.CreateUserParams{
+				Name:     "test",
+				Email:    "test@test.com",
+				Password: "featea",
+			},
+			want:    "test",
+			wantErr: false,
+		},
+		{
+			name: "error",
+			params: &model.CreateUserParams{
+				Name: "",
+			},
+			want:    "",
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := repository{db: testingDB}
+			got, err := r.Create(context.Background(), tt.params)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("repository.Create() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("repository.Create() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_repository_Delete(t *testing.T) {
+	createRandomUserToDB(10)
+
+	tests := []struct {
+		name    string
+		id      string
+		wantErr bool
+	}{
+		{
+			name:    "happy",
+			id:      "1",
+			wantErr: false,
+		},
+		{
+			name:    "error",
+			id:      "11",
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := &repository{db: testingDB}
+			if err := r.Delete(context.Background(), tt.id); (err != nil) != tt.wantErr {
+				t.Errorf("repository.Delete() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
 }
