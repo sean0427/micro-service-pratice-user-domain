@@ -3,6 +3,7 @@ package rdbreposity
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 
@@ -55,7 +56,7 @@ func (r *repository) Create(ctx context.Context, params *model.CreateUserParams)
 		return "", result.Error
 	}
 
-	return user.ID, nil
+	return fmt.Sprintf("%d", user.ID), nil
 }
 
 func (r *repository) Update(ctx context.Context, id string, params *model.UpdateUserParams) (*model.User, error) {

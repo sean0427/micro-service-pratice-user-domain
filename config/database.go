@@ -34,7 +34,14 @@ func GetPGAddress() (string, error) {
 	if v, found := os.LookupEnv("POSTGRES_ADDRESS"); found {
 		return v, nil
 	} else {
-		return "", errors.New("POSTGRES_DB is not set")
+		return "", errors.New("POSTGRES_ADDRESS is not set")
+	}
+}
+func GetPGPort() (string, error) {
+	if v, found := os.LookupEnv("POSTGRES_PORT"); found {
+		return v, nil
+	} else {
+		return "", errors.New("POSTGRES_ADDRESS is not set")
 	}
 }
 
@@ -59,5 +66,10 @@ func GetPostgresDNS() (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True", user, password, address, 3306, db), nil
+	port, err := GetPGPort()
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", user, password, address, port, db), nil
 }

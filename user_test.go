@@ -10,12 +10,12 @@ import (
 type mockRepo struct{}
 
 func (r *mockRepo) Get(ctx context.Context, params *model.GetUsersParams) ([]*model.User, error) {
-	return []*model.User{{ID: "test"}}, nil
+	return []*model.User{{ID: 1234}}, nil
 }
 
 func (r *mockRepo) GetByID(ctx context.Context, id string) (*model.User, error) {
 	return &model.User{
-		ID:   "testfjeia",
+		ID:   1234,
 		Name: id}, nil
 }
 
@@ -71,8 +71,8 @@ func TestUserService_GetByID(t *testing.T) {
 			t.Errorf("Get user by name is not equal")
 		}
 
-		if item.ID == "" {
-			t.Errorf("Returned user id should not be empty")
+		if item.ID == 0 {
+			t.Errorf("Returned user id should not be zero")
 		}
 	})
 }
@@ -97,8 +97,9 @@ func TestUserService_Create(t *testing.T) {
 
 func TestUserService_Update(t *testing.T) {
 	t.Run("happy", func(t *testing.T) {
-		const testId = "test"
+		const testId = "1234"
 		testUser := &model.UpdateUserParams{
+			ID:   1234,
 			Name: testId,
 		}
 
@@ -107,7 +108,7 @@ func TestUserService_Update(t *testing.T) {
 			t.Error(err)
 		}
 
-		if user.ID != testId {
+		if user.ID != 1234 {
 			t.Error("test user id should be equal")
 		}
 	})

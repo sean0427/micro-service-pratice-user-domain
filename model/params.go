@@ -5,14 +5,14 @@ type GetUsersParams struct {
 }
 
 type CreateUserParams struct {
-	ID       string
+	ID       int64
 	Name     string
 	Email    string
 	Password string
 }
 
 type UpdateUserParams struct {
-	ID       string
+	ID       int64
 	Name     string
 	Email    string
 	Password string

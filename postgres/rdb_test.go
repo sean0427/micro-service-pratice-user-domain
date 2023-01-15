@@ -2,6 +2,7 @@ package rdbreposity
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strconv"
 	"testing"
@@ -96,7 +97,7 @@ func Test_reposity_Get(t *testing.T) {
 func createRandomUserToDB(numbers int) {
 	for i := 0; i < numbers; i++ {
 		user := &model.User{
-			ID:   strconv.Itoa(i),
+			ID:   int64(i),
 			Name: "test" + strconv.Itoa(i),
 		}
 		testingDB.Create(user)
@@ -105,39 +106,33 @@ func createRandomUserToDB(numbers int) {
 
 var testGetUserIdCases = []struct {
 	name      string
-	id        string
+	id        int64
 	testCount int
 	want      string
 	wantError bool
 }{
 	{
 		name:      "happy - get user id",
-		id:        "0",
+		id:        0,
 		testCount: 1,
 		wantError: false,
 	},
 	{
 		name:      "happy - get user id 2",
-		id:        "1",
+		id:        1,
 		testCount: 2,
 		wantError: false,
 	},
 	{
 		name:      "happy - get user id 100",
-		id:        "99",
+		id:        99,
 		testCount: 100,
 		wantError: false,
 	},
 	{
 		name:      "error - not create",
 		testCount: 0,
-		id:        "1",
-		wantError: true,
-	},
-	{
-		name:      "error - random string",
-		testCount: 20,
-		id:        "gfeawgeawgew",
+		id:        1,
 		wantError: true,
 	},
 }
@@ -148,7 +143,7 @@ func Test_repository_GetByID(t *testing.T) {
 			createRandomUserToDB(c.testCount)
 			repo := repository{db: testingDB}
 
-			prodct, err := repo.GetByID(context.Background(), c.id)
+			prodct, err := repo.GetByID(context.Background(), fmt.Sprintf("%d", c.id))
 
 			if err != nil && !c.wantError {
 				t.Errorf("got error %v", err)
@@ -156,7 +151,7 @@ func Test_repository_GetByID(t *testing.T) {
 			}
 
 			if prodct.ID == c.id {
-				t.Errorf("Expected %s, got %s", c.id, prodct.ID)
+				t.Errorf("Expected %d, got %d", c.id, prodct.ID)
 			}
 		})
 	}

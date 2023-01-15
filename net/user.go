@@ -24,10 +24,8 @@ type handler struct {
 func (h *handler) Get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	params := model.GetUsersParams{}
-	if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+	params := model.GetUsersParams{
+		Name: model.StringToPointer(r.URL.Query().Get("name")),
 	}
 
 	users, err := h.service.Get(r.Context(), &params)

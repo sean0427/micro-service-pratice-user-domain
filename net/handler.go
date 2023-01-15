@@ -15,6 +15,9 @@ func (h *handler) InitHandler() *chi.Mux {
 	r.Route("/users", func(r chi.Router) {
 		r.Get("/", h.Get)
 		r.Get("/:id", h.GetById)
+		r.Post("/", h.Create)
+		r.Put("/:id", h.Update)
+		r.Delete("/:id", h.Delete)
 	})
 
 	return r
