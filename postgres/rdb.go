@@ -3,10 +3,10 @@ package rdbreposity
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"gorm.io/gorm"
 
+	"github.com/sean0427/micro-service-pratice-user-domain/api_model"
 	"github.com/sean0427/micro-service-pratice-user-domain/model"
 )
 
@@ -20,7 +20,7 @@ func New(db *gorm.DB) *repository {
 	}
 }
 
-func (r *repository) Get(ctx context.Context, params *model.GetUsersParams) ([]*model.User, error) {
+func (r *repository) Get(ctx context.Context, params *api_model.GetUsersParams) ([]*model.User, error) {
 	var users []*model.User
 	tx := r.db.WithContext(ctx)
 
@@ -33,55 +33,60 @@ func (r *repository) Get(ctx context.Context, params *model.GetUsersParams) ([]*
 	return users, result.Error
 }
 
-func (r *repository) GetByID(ctx context.Context, id string) (*model.User, error) {
+func (r *repository) GetByID(ctx context.Context, id int64) (*model.User, error) {
 	var user model.User
 	tx := r.db.WithContext(ctx)
 
-	result := tx.Where("id =?", id).Find(&user)
+	result := tx.Where("id = ?", id).Find(&user)
 	return &user, result.Error
 }
 
-func (r *repository) Create(ctx context.Context, params *model.CreateUserParams) (string, error) {
-	var user model.User
-
-	tx := r.db.WithContext(ctx)
-	result := tx.Model(&user).Create([]map[string]interface{}{
-		{
-			"name":     params.Name,
-			"email":    params.Email,
-			"password": params.Password,
-		},
-	})
-	if result.Error != nil {
-		return "", result.Error
+func (r *repository) Create(ctx context.Context, params *api_model.CreateUserParams) (int64, error) {
+	user := model.User{
+		Name:     params.Name,
+		Email:    params.Email,
+		Password: params.Password,
 	}
 
-	return fmt.Sprintf("%d", user.ID), nil
+	tx := r.db.WithContext(ctx)
+	result := tx.Model(&user).Create(&user)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return user.ID, nil
 }
 
-func (r *repository) Update(ctx context.Context, id string, params *model.UpdateUserParams) (*model.User, error) {
-	var user model.User
+func (r *repository) Update(ctx context.Context, id int64, params *api_model.UpdateUserParams) (*model.User, error) {
+	user := model.User{
+		ID:       id,
+		Name:     params.Name,
+		Email:    params.Email,
+		Password: params.Password,
+	}
 	tx := r.db.WithContext(ctx)
 
-	result := tx.Model(&user).Where("id =?", params.ID).Save(&user)
+	result := tx.Model(&user).Where("id = ?", params.ID).Save(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	if result.RowsAffected == 0 {
 		return nil, errors.New("not found")
 	}
+
 	return &user, nil
 }
 
-func (r *repository) Delete(ctx context.Context, id string) error {
+func (r *repository) Delete(ctx context.Context, id int64) error {
 	tx := r.db.WithContext(ctx)
 
-	result := tx.Delete(&model.User{}, "id =?", id)
+	result := tx.Delete(&model.User{}, "id = ?", id)
 	if result.Error != nil {
 		return result.Error
 	}
 	if result.RowsAffected == 0 {
 		return errors.New("not found")
 	}
+
 	return nil
 }

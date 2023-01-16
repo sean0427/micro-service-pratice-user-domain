@@ -1,11 +1,10 @@
-package model
+package api_model
 
 type GetUsersParams struct {
 	Name *string
 }
 
 type CreateUserParams struct {
-	ID       int64
 	Name     string
 	Email    string
 	Password string
