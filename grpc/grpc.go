@@ -70,3 +70,59 @@ func (g *GrpcService) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.Use
 
 	return &pb.UserReply{User: UserToGrpcUser(res)}, nil
 }
+
+func (g *GrpcService) CreateUser(ctx context.Context, req *pb.UserRequest) (*pb.MsgReply, error) {
+	if req.Id != nil {
+		return nil, status.Error(codes.InvalidArgument, "input id shuld be nil")
+	}
+	if req.Name == nil || *req.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "input name should not be nil")
+	}
+
+	user := &api_model.CreateUserParams{}
+	if req.Name != nil {
+		user.Name = *req.Name
+	}
+
+	res, err := g.service.Create(ctx, user)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return &pb.MsgReply{Id: api_model.Int64ToPointer(res)}, nil
+}
+
+func (g *GrpcService) UpdateUser(ctx context.Context, req *pb.UserRequest) (*pb.UserReply, error) {
+	if req.Id == nil || *req.Id < 0 {
+		return nil, status.Error(codes.InvalidArgument, "input id shuld not be nil")
+	}
+
+	user := &api_model.UpdateUserParams{}
+	// TODO: other pramas
+	if req.Name != nil {
+		user.Name = *req.Name
+	}
+
+	res, err := g.service.Update(ctx, *req.Id, user)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+	if res == nil {
+		return nil, status.Error(codes.NotFound, "")
+	}
+
+	return &pb.UserReply{User: UserToGrpcUser(res)}, nil
+}
+
+func (g *GrpcService) DeleteUser(ctx context.Context, req *pb.UserRequest) (*pb.MsgReply, error) {
+	if req.Id == nil || *req.Id < 0 {
+		return nil, status.Error(codes.InvalidArgument, "input id shuld not be nil")
+	}
+
+	err := g.service.Delete(ctx, *req.Id)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return &pb.MsgReply{Id: req.Id}, nil
+}
