@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/sean0427/micro-service-pratice-user-domain/api_model"
-	"github.com/sean0427/micro-service-pratice-user-domain/grpc/grpc"
+	pb "github.com/sean0427/micro-service-pratice-user-domain/grpc/grpc"
 	"github.com/sean0427/micro-service-pratice-user-domain/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -17,7 +17,7 @@ func New(s service) *GrpcService {
 }
 
 type GrpcService struct {
-	grpc.UnimplementedUserHandlerServer
+	pb.UnimplementedUserHandlerServer
 	service service
 }
 
@@ -29,7 +29,7 @@ type service interface {
 	Delete(context.Context, int64) error
 }
 
-func (g *GrpcService) ListUsers(ctx context.Context, req *grpc.UserRequest) (*grpc.ListUserReply, error) {
+func (g *GrpcService) ListUsers(ctx context.Context, req *pb.UserRequest) (*pb.ListUserReply, error) {
 	if req.Name == nil {
 		return nil, status.Error(codes.InvalidArgument, "not input Name")
 	}
@@ -42,10 +42,14 @@ func (g *GrpcService) ListUsers(ctx context.Context, req *grpc.UserRequest) (*gr
 		return nil, status.Errorf(codes.Internal, "test")
 	}
 
-	result := make([]*grpc.User, len(res))
-	for _, item := range res {
-		result = append(result, UserToGrpcUser(item))
+	if len(res) == 0 {
+		status.Error(codes.NotFound, "not found")
 	}
 
-	return &grpc.ListUserReply{Users: result}, nil
+	result := make([]*pb.User, len(res))
+	for i, item := range res {
+		result[i] = UserToGrpcUser(item)
+	}
+
+	return &pb.ListUserReply{Users: result}, nil
 }
