@@ -12,6 +12,7 @@ message User {
 // The User service definition.
 service UserHandler {
   rpc ListUsers (UserRequest) returns (ListUserReply) {}
+  rpc GetUser (UserRequest) returns (UserReply) {}
   rpc CreateUser (UserRequest) returns (MsgReply) {}
   rpc UpdateUser (UserRequest) returns (UserReply) {}
   rpc DeleteUser (UserRequest) returns (MsgReply) {}
@@ -25,7 +26,7 @@ message UserRequest {
 
 message UserReply {
   string message = 1;
-  UserReply user = 2;
+  User user = 2;
 }
 
 message MsgReply {

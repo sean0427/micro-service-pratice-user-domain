@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserHandlerClient interface {
 	ListUsers(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*ListUserReply, error)
+	GetUser(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*UserReply, error)
 	CreateUser(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*MsgReply, error)
 	UpdateUser(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*UserReply, error)
 	DeleteUser(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*MsgReply, error)
@@ -39,6 +40,15 @@ func NewUserHandlerClient(cc grpc.ClientConnInterface) UserHandlerClient {
 func (c *userHandlerClient) ListUsers(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*ListUserReply, error) {
 	out := new(ListUserReply)
 	err := c.cc.Invoke(ctx, "/UserHandler/ListUsers", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userHandlerClient) GetUser(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*UserReply, error) {
+	out := new(UserReply)
+	err := c.cc.Invoke(ctx, "/UserHandler/GetUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,6 +87,7 @@ func (c *userHandlerClient) DeleteUser(ctx context.Context, in *UserRequest, opt
 // for forward compatibility
 type UserHandlerServer interface {
 	ListUsers(context.Context, *UserRequest) (*ListUserReply, error)
+	GetUser(context.Context, *UserRequest) (*UserReply, error)
 	CreateUser(context.Context, *UserRequest) (*MsgReply, error)
 	UpdateUser(context.Context, *UserRequest) (*UserReply, error)
 	DeleteUser(context.Context, *UserRequest) (*MsgReply, error)
@@ -89,6 +100,9 @@ type UnimplementedUserHandlerServer struct {
 
 func (UnimplementedUserHandlerServer) ListUsers(context.Context, *UserRequest) (*ListUserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListUsers not implemented")
+}
+func (UnimplementedUserHandlerServer) GetUser(context.Context, *UserRequest) (*UserReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
 func (UnimplementedUserHandlerServer) CreateUser(context.Context, *UserRequest) (*MsgReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
@@ -126,6 +140,24 @@ func _UserHandler_ListUsers_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserHandlerServer).ListUsers(ctx, req.(*UserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserHandler_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserHandlerServer).GetUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/UserHandler/GetUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserHandlerServer).GetUser(ctx, req.(*UserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -194,6 +226,10 @@ var UserHandler_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListUsers",
 			Handler:    _UserHandler_ListUsers_Handler,
+		},
+		{
+			MethodName: "GetUser",
+			Handler:    _UserHandler_GetUser_Handler,
 		},
 		{
 			MethodName: "CreateUser",

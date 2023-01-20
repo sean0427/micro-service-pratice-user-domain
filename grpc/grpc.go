@@ -30,8 +30,8 @@ type service interface {
 }
 
 func (g *GrpcService) ListUsers(ctx context.Context, req *pb.UserRequest) (*pb.ListUserReply, error) {
-	if req.Name == nil {
-		return nil, status.Error(codes.InvalidArgument, "not input Name")
+	if req.Name == nil || *req.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "input name should not be nil")
 	}
 
 	user := &api_model.GetUsersParams{
@@ -39,7 +39,7 @@ func (g *GrpcService) ListUsers(ctx context.Context, req *pb.UserRequest) (*pb.L
 	}
 	res, err := g.service.Get(ctx, user)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "test")
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	if len(res) == 0 {
@@ -52,4 +52,21 @@ func (g *GrpcService) ListUsers(ctx context.Context, req *pb.UserRequest) (*pb.L
 	}
 
 	return &pb.ListUserReply{Users: result}, nil
+}
+
+func (g *GrpcService) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.UserReply, error) {
+	if req.Id == nil || *req.Id < 0 {
+		return nil, status.Error(codes.InvalidArgument, "input id shuld not be nil")
+	}
+
+	res, err := g.service.GetByID(ctx, *req.Id)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	if res == nil {
+		return nil, status.Error(codes.NotFound, "")
+	}
+
+	return &pb.UserReply{User: UserToGrpcUser(res)}, nil
 }
