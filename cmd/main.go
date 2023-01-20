@@ -54,7 +54,6 @@ func startServer() {
 	}
 	netServer := grpc.NewServer()
 	pb.RegisterUserHandlerServer(netServer, h)
-	// TODO: start grpc server?
 	log.Printf("server listening at %v", lis.Addr())
 	if err := netServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
