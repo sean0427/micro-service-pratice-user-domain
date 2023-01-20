@@ -1,0 +1,40 @@
+syntax = "proto3";
+option go_package = "grpc/grpc";
+
+// The user domain model
+message User {
+  int64 id = 1;
+  string name = 2;
+  string email = 3;
+  optional string password = 4; // never return
+}
+
+// The User service definition.
+service UserHandler {
+  rpc ListUsers (UserRequest) returns (ListUserReply) {}
+  rpc CreateUser (UserRequest) returns (MsgReply) {}
+  rpc UpdateUser (UserRequest) returns (UserReply) {}
+  rpc DeleteUser (UserRequest) returns (MsgReply) {}
+}
+
+// The request message containing the user's name.
+message UserRequest {
+  optional int64 id = 1;
+  optional string name = 2;
+}
+
+message UserReply {
+  string message = 1;
+  UserReply user = 2;
+}
+
+message MsgReply {
+  string message = 1;
+  optional int64 id = 2;
+}
+
+// The response message containing the greetings
+message ListUserReply {
+  string message = 1;
+  repeated User users = 2;
+}
