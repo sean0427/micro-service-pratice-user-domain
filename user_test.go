@@ -1,10 +1,11 @@
-package user
+package user_test
 
 import (
 	"context"
 	"strconv"
 	"testing"
 
+	. "github.com/sean0427/micro-service-pratice-user-domain"
 	"github.com/sean0427/micro-service-pratice-user-domain/api_model"
 	"github.com/sean0427/micro-service-pratice-user-domain/model"
 )

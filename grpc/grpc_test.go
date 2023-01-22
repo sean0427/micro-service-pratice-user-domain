@@ -7,8 +7,9 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/sean0427/micro-service-pratice-user-domain/api_model"
-	"github.com/sean0427/micro-service-pratice-user-domain/grpc"
+	. "github.com/sean0427/micro-service-pratice-user-domain/grpc"
 	pb "github.com/sean0427/micro-service-pratice-user-domain/grpc/grpc"
+	mock "github.com/sean0427/micro-service-pratice-user-domain/mock"
 	"github.com/sean0427/micro-service-pratice-user-domain/model"
 )
 
@@ -73,13 +74,13 @@ func TestGrpcService_ListUsers(t *testing.T) {
 		t.Run(c.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 
-			m := NewMockservice(ctrl)
+			m := mock.NewMockservice(ctrl)
 			m.EXPECT().
 				Get(gomock.Any(), gomock.Eq(&api_model.GetUsersParams{Name: c.request.Name})).
 				Return(c.returnedUsers, c.returnedErr).
 				Times(c.expectTime)
 
-			grpc := grpc.New(m)
+			grpc := New(m)
 
 			res, err := grpc.ListUsers(context.Background(), c.request)
 
@@ -158,13 +159,13 @@ func TestGrpcService_GetUser(t *testing.T) {
 				idMatcher = gomock.Eq(*c.request.Id)
 			}
 
-			m := NewMockservice(ctrl)
+			m := mock.NewMockservice(ctrl)
 			m.EXPECT().
 				GetByID(gomock.Any(), idMatcher).
 				Return(c.returnedUser, c.returnedErr).
 				Times(c.expectTime)
 
-			grpc := grpc.New(m)
+			grpc := New(m)
 
 			res, err := grpc.GetUser(context.Background(), c.request)
 
@@ -238,13 +239,13 @@ func TestGrpcService_DeleteUser(t *testing.T) {
 				idMatcher = gomock.Eq(*c.request.Id)
 			}
 
-			m := NewMockservice(ctrl)
+			m := mock.NewMockservice(ctrl)
 			m.EXPECT().
 				Delete(gomock.Any(), idMatcher).
 				Return(c.returnedErr).
 				Times(c.expectTime)
 
-			grpc := grpc.New(m)
+			grpc := New(m)
 
 			res, err := grpc.DeleteUser(context.Background(), c.request)
 
@@ -324,13 +325,13 @@ func TestGrpcService_UpdateUser(t *testing.T) {
 				idMatcher = gomock.Eq(*c.request.Id)
 			}
 
-			m := NewMockservice(ctrl)
+			m := mock.NewMockservice(ctrl)
 			m.EXPECT().
 				Update(gomock.Any(), idMatcher, gomock.Any()).
 				Return(c.returnedUser, c.returnedErr).
 				Times(c.expectTime)
 
-			grpc := grpc.New(m)
+			grpc := New(m)
 
 			res, err := grpc.UpdateUser(context.Background(), c.request)
 
@@ -409,13 +410,13 @@ func TestGrpcService_CreateUser(t *testing.T) {
 				userMatch = gomock.Eq(&api_model.CreateUserParams{Name: *c.request.Name})
 			}
 
-			m := NewMockservice(ctrl)
+			m := mock.NewMockservice(ctrl)
 			m.EXPECT().
 				Create(gomock.Any(), userMatch).
 				Return(c.returnedID, c.returnedErr).
 				Times(c.expectTime)
 
-			grpc := grpc.New(m)
+			grpc := New(m)
 
 			res, err := grpc.CreateUser(context.Background(), c.request)
 
