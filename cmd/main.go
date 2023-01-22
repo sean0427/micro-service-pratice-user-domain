@@ -14,7 +14,7 @@ import (
 	config "github.com/sean0427/micro-service-pratice-user-domain/config"
 	handler "github.com/sean0427/micro-service-pratice-user-domain/grpc"
 	pb "github.com/sean0427/micro-service-pratice-user-domain/grpc/grpc"
-	repository "github.com/sean0427/micro-service-pratice-user-domain/postgres"
+	repository "github.com/sean0427/micro-service-pratice-user-domain/postgressql"
 )
 
 func NewSQLDB() (*gorm.DB, error) {

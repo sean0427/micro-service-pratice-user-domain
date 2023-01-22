@@ -1,4 +1,4 @@
-package rdbreposity
+package postgressql
 
 import (
 	"context"
@@ -89,4 +89,9 @@ func (r *repository) Delete(ctx context.Context, id int64) error {
 	}
 
 	return nil
+}
+
+func ExamUserPassword(ctx context.Context, name, password string) (bool, error) {
+	//TODO
+	return false, nil
 }
