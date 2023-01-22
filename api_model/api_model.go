@@ -1,18 +1,17 @@
-package model
+package api_model
 
 type GetUsersParams struct {
 	Name *string
 }
 
 type CreateUserParams struct {
-	ID       string
 	Name     string
 	Email    string
 	Password string
 }
 
 type UpdateUserParams struct {
-	ID       string
+	ID       int64
 	Name     string
 	Email    string
 	Password string
@@ -20,4 +19,8 @@ type UpdateUserParams struct {
 
 func StringToPointer(s string) *string {
 	return &s
+}
+
+func Int64ToPointer(i int64) *int64 {
+	return &i
 }
