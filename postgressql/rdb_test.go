@@ -1,4 +1,4 @@
-package rdbreposity
+package postgressql
 
 import (
 	"context"
