@@ -91,7 +91,17 @@ func (r *repository) Delete(ctx context.Context, id int64) error {
 	return nil
 }
 
-func ExamUserPassword(ctx context.Context, name, password string) (bool, error) {
-	//TODO
+func (r *repository) ExamUserPassword(ctx context.Context, name, password string) (bool, error) {
+	tx := r.db.WithContext(ctx)
+
+	// TODO: Check
+	var examCount int64 = 0
+	tx.Find("name = ?", name).
+		Where("password =?", password).
+		Count(&examCount)
+
+	if examCount == 1 {
+		return true, nil
+	}
 	return false, nil
 }

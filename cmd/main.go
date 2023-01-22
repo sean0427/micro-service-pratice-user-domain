@@ -13,6 +13,7 @@ import (
 	service "github.com/sean0427/micro-service-pratice-user-domain"
 	config "github.com/sean0427/micro-service-pratice-user-domain/config"
 	handler "github.com/sean0427/micro-service-pratice-user-domain/grpc"
+	auth_pb "github.com/sean0427/micro-service-pratice-user-domain/grpc/auth"
 	pb "github.com/sean0427/micro-service-pratice-user-domain/grpc/grpc"
 	repository "github.com/sean0427/micro-service-pratice-user-domain/postgressql"
 )
@@ -54,6 +55,11 @@ func startServer() {
 	}
 	netServer := grpc.NewServer()
 	pb.RegisterUserHandlerServer(netServer, h)
+
+	auths := service.NewAuthService(r)
+	netAuthServer := handler.NewAuthHandler(auths)
+	auth_pb.RegisterAuthServer(netServer, netAuthServer)
+
 	log.Printf("server listening at %v", lis.Addr())
 	if err := netServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
