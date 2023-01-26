@@ -95,16 +95,6 @@ func Test_reposity_Get(t *testing.T) {
 	}
 }
 
-func createRandomUserToDB(numbers int) {
-	for i := 0; i < numbers; i++ {
-		user := &model.User{
-			ID:   int64(i),
-			Name: "test" + strconv.Itoa(i),
-		}
-		testingDB.Create(user)
-	}
-}
-
 var testGetUserIdCases = []struct {
 	name      string
 	id        int64
@@ -280,5 +270,46 @@ func Test_repository_Update(t *testing.T) {
 				t.Errorf("repository.Update() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func FuzzRepository_ExamUserPassword(f *testing.F) {
+	createRandomUserToDB(100)
+
+	for i := 0; i < 100; i++ {
+		f.Add("test"+strconv.Itoa(i), strconv.Itoa(i+1), true)
+	}
+
+	for i := 0; i < 100; i++ {
+		f.Add("test"+strconv.Itoa(i), strconv.Itoa(i+100), false)
+	}
+
+	for i := 0; i < 100; i++ {
+		f.Add("test"+strconv.Itoa(i+1000), strconv.Itoa(i), false)
+	}
+
+	f.Fuzz(func(t *testing.T, name, pwd string, pass bool) {
+		r := repository{db: testingDB}
+
+		result, err := r.ExamUserPassword(context.Background(), name, pwd)
+
+		if pass != result {
+			t.Errorf("repository.ExamUserPassword() error = %v, want %v", err, pass)
+		}
+
+		if !pass && err == nil {
+			t.Errorf("repository.ExamUserPassword() error not be nil, but %v", err)
+		}
+	})
+}
+
+func createRandomUserToDB(numbers int) {
+	for i := 0; i < numbers; i++ {
+		user := &model.User{
+			ID:       int64(i),
+			Name:     "test" + strconv.Itoa(i),
+			Password: strconv.Itoa(i + 1),
+		}
+		testingDB.Create(user)
 	}
 }
