@@ -2,6 +2,8 @@ package grpc
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	pb "github.com/sean0427/micro-service-pratice-user-domain/grpc/auth"
 	"google.golang.org/grpc/codes"
@@ -34,6 +36,7 @@ func (g *AuthGrpc) Authenticate(ctx context.Context, req *pb.AuthRequest) (*pb.A
 	}
 
 	return &pb.AuthReply{
+		Message: fmt.Sprintf("authenticated timestamp: %v", time.Now()),
 		Success: success,
 	}, nil
 }
