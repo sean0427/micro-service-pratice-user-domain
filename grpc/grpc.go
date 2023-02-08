@@ -56,7 +56,7 @@ func (g *GrpcService) ListUsers(ctx context.Context, req *pb.UserRequest) (*pb.L
 
 func (g *GrpcService) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.UserReply, error) {
 	if req.Id == nil || *req.Id < 0 {
-		return nil, status.Error(codes.InvalidArgument, "input id shuld not be nil")
+		return nil, status.Error(codes.InvalidArgument, "input id should not be nil")
 	}
 
 	res, err := g.service.GetByID(ctx, *req.Id)
@@ -73,7 +73,7 @@ func (g *GrpcService) GetUser(ctx context.Context, req *pb.UserRequest) (*pb.Use
 
 func (g *GrpcService) CreateUser(ctx context.Context, req *pb.UserRequest) (*pb.MsgReply, error) {
 	if req.Id != nil {
-		return nil, status.Error(codes.InvalidArgument, "input id shuld be nil")
+		return nil, status.Error(codes.InvalidArgument, "input id should be nil")
 	}
 	if req.Name == nil || *req.Name == "" {
 		return nil, status.Error(codes.InvalidArgument, "input name should not be nil")
@@ -94,7 +94,7 @@ func (g *GrpcService) CreateUser(ctx context.Context, req *pb.UserRequest) (*pb.
 
 func (g *GrpcService) UpdateUser(ctx context.Context, req *pb.UserRequest) (*pb.UserReply, error) {
 	if req.Id == nil || *req.Id < 0 {
-		return nil, status.Error(codes.InvalidArgument, "input id shuld not be nil")
+		return nil, status.Error(codes.InvalidArgument, "input id should not be nil")
 	}
 
 	user := &api_model.UpdateUserParams{}
@@ -116,7 +116,7 @@ func (g *GrpcService) UpdateUser(ctx context.Context, req *pb.UserRequest) (*pb.
 
 func (g *GrpcService) DeleteUser(ctx context.Context, req *pb.UserRequest) (*pb.MsgReply, error) {
 	if req.Id == nil || *req.Id < 0 {
-		return nil, status.Error(codes.InvalidArgument, "input id shuld not be nil")
+		return nil, status.Error(codes.InvalidArgument, "input id should not be nil")
 	}
 
 	err := g.service.Delete(ctx, *req.Id)
