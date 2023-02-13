@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 RUN go mod download
-RUN CGO_ENABLED=0  go build -o /docker-exec ./cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o app ./cmd/main.go
 
 #####################################
 
@@ -21,11 +21,11 @@ RUN mkdir -p $APP_HOME
 
 WORKDIR $APP_HOME
 
-COPY --from=build /docker-exec $APP_HOME/docker-exec
+COPY --from=build /app $APP_HOME/app
 RUN chown -R $APP_USER:$APP_USER $APP_HOME
 RUN chmod -R 100 $APP_HOME
 EXPOSE $PORT
 USER $APP_USER
 
 
-CMD [ "./docker-exec", "port=${PORT}" ]
+CMD [ "./app", "port=${PORT}" ]
