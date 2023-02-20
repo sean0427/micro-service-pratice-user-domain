@@ -8,7 +8,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o app ./cmd/main.go
 
 #####################################
 
-FROM alpine:3.16.3
+FROM alpine:3.17
 
 ARG PORT=50051
 
