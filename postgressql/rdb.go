@@ -6,9 +6,13 @@ import (
 
 	"gorm.io/gorm"
 
+	tool "github.com/sean0427/tool-distributed-system-p/outbox-transaction"
+
 	"github.com/sean0427/micro-service-pratice-user-domain/api_model"
 	"github.com/sean0427/micro-service-pratice-user-domain/model"
 )
+
+const topicName = "user"
 
 type repository struct {
 	db *gorm.DB
@@ -48,10 +52,16 @@ func (r *repository) Create(ctx context.Context, params *api_model.CreateUserPar
 		Password: params.Password,
 	}
 
-	tx := r.db.WithContext(ctx)
-	result := tx.Model(&user).Create(&user)
-	if result.Error != nil {
-		return 0, result.Error
+	err := tool.TransactionWithOutboxMsg(ctx, r.db, &user, topicName, func(tx *gorm.DB) (int64, error) {
+		result := tx.Model(&user).Create(&user)
+
+		// FIXME: workaround
+		user.Password = nil
+		return user.ID, result.Error
+	})
+
+	if err != nil {
+		return 0, err
 	}
 
 	return user.ID, nil
@@ -64,14 +74,23 @@ func (r *repository) Update(ctx context.Context, id int64, params *api_model.Upd
 		Email:    params.Email,
 		Password: params.Password,
 	}
-	tx := r.db.WithContext(ctx)
 
-	result := tx.Model(&user).Where("id = ?", params.ID).Save(&user)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	if result.RowsAffected == 0 {
-		return nil, errors.New("not found")
+	err := tool.TransactionWithOutboxMsg(ctx, r.db, &user, topicName, func(tx *gorm.DB) (int64, error) {
+		result := tx.Model(&user).Where("id = ?", params.ID).Save(&user)
+		if result.Error != nil {
+			return 0, result.Error
+		}
+		if result.RowsAffected == 0 {
+			return 0, errors.New("not found")
+		}
+
+		// FIXME: workaround
+		user.Password = nil
+		return user.ID, nil
+	})
+
+	if err != nil {
+		return nil, err
 	}
 
 	return &user, nil
@@ -80,15 +99,19 @@ func (r *repository) Update(ctx context.Context, id int64, params *api_model.Upd
 func (r *repository) Delete(ctx context.Context, id int64) error {
 	tx := r.db.WithContext(ctx)
 
-	result := tx.Delete(&model.User{}, "id = ?", id)
-	if result.Error != nil {
-		return result.Error
-	}
-	if result.RowsAffected == 0 {
-		return errors.New("not found")
-	}
+	err := tool.TransactionDeleteWithOutboxMsg(ctx, tx, topicName, id, func(tx *gorm.DB) error {
+		result := tx.Delete(&model.User{}, "id = ?", id)
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			return errors.New("not found")
+		}
 
-	return nil
+		return nil
+	})
+
+	return err
 }
 
 func (r *repository) ExamUserPassword(ctx context.Context, name, password string) (bool, error) {
