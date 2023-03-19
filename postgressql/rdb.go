@@ -56,7 +56,7 @@ func (r *repository) Create(ctx context.Context, params *api_model.CreateUserPar
 		result := tx.Model(&user).Create(&user)
 
 		// FIXME: workaround
-		user.Password = nil
+		user.Password = ""
 		return user.ID, result.Error
 	})
 
@@ -85,7 +85,7 @@ func (r *repository) Update(ctx context.Context, id int64, params *api_model.Upd
 		}
 
 		// FIXME: workaround
-		user.Password = nil
+		user.Password = ""
 		return user.ID, nil
 	})
 
