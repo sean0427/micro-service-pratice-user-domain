@@ -1,14 +1,15 @@
 module github.com/sean0427/micro-service-pratice-user-domain
 
-go 1.19
+go 1.20
 
 require (
 	github.com/golang/mock v1.6.0
+	github.com/sean0427/tool-distributed-system-p/outbox-transaction v0.0.0-20230319092222-ad55bea2df4b
 	google.golang.org/grpc v1.52.0
 	google.golang.org/protobuf v1.28.1
 	gorm.io/driver/postgres v1.4.6
 	gorm.io/driver/sqlite v1.4.4
-	gorm.io/gorm v1.24.3
+	gorm.io/gorm v1.24.6
 )
 
 require (
